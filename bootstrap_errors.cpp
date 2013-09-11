@@ -37,7 +37,11 @@
 #include "model_object.h"
 #include "mpfit_cpp.h"
 #include "levmar_fit.h"
+
+#ifndef NO_NLOPT
 #include "nmsimplex_fit.h"
+#endif
+
 #include "mersenne_twister.h"
 #include "bootstrap_errors.h"
 #include "statistics.h"
@@ -90,8 +94,12 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
       status = LevMarFit(nParams, nFreeParams, nValidPixels, paramsVect, parameterLimits, 
       					theModel, ftol, paramLimitsExist, verboseLevel);
     } else {
+#ifndef NO_NLOPT
       status = NMSimplexFit(nParams, paramsVect, parameterLimits, theModel, ftol,
       						verboseLevel);
+#else
+      printf("WARNING: Compiled with NO_NLOPT, but reached a NMSimplexFit function!");
+#endif
     }
     for (i = 0; i < nParams; i++) {
       paramArray[i][nIter] = paramsVect[i];
