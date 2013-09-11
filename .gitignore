@@ -1,0 +1,10 @@
+config.status
+configure
+depcomp
+install-sh
+missing
+compile
+config.h
+config.log
+imfit
+makeimage
