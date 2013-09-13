@@ -8,3 +8,7 @@ config.h
 config.log
 imfit
 makeimage
+autom4te.cache
+aclocal.m4
+Makefile.in
+Makefile
