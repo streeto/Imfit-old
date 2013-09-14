@@ -4,7 +4,7 @@ AM_LDFLAGS =
 AM_CFLAGS = $(fftw_CFLAGS) $(cfitsio_CFLAGS)
 AM_CXXFLAGS = $(fftw_CXXFLAGS) $(cfitsio_CXXFLAGS)
 AM_CPPFLAGS = -I${top_srcdir}/src -I${top_srcdir}/src/function_objects
-my_LIBS = $(fftw_LIBS) $(cfitsio_LIBS)
+my_LIBS = $(fftw_LIBS)
 
 if USE_OPENMP
 AM_CPPFLAGS += -DUSE_OPENMP
@@ -19,32 +19,16 @@ AM_CPPFLAGS += -DFFTW_THREADING
 endif
 
 if USE_GSL
-GSL_SRC = function_objects/func_edge-on-disk.cpp \
-          function_objects/integrator.cpp \
-          function_objects/func_expdisk3d.cpp \
-          function_objects/func_brokenexpdisk3d.cpp \
-          function_objects/func_gaussianring3d.cpp
-GSL_HDR = function_objects/func_edge-on-disk.h \
-          function_objects/integrator.h \
-          function_objects/func_expdisk3d.h \
-          function_objects/func_brokenexpdisk3d.h \
-          function_objects/func_gaussianring3d.h
 AM_CXXFLAGS += $(gsl_CXXFLAGS)
 my_LIBS += $(gsl_LIBS)
 else
-GSL_SRC = 
-GSL_HDR = 
 AM_CPPFLAGS += -DNO_GSL
 endif
 
 if USE_NLOPT
-NLOPT_SRC = nmsimplex_fit.cpp
-NLOPT_HDR = nmsimplex_fit.h
 AM_CXXFLAGS += $(nlopt_CXXFLAGS)
 my_LIBS += $(nlopt_LIBS)
 else
-NLOPT_SRC = 
-NLOPT_HDR = 
 AM_CPPFLAGS += -DNO_NLOPT
 endif
 
@@ -61,39 +45,50 @@ FIT_SRC = levmar_fit.cpp \
           diff_evoln_fit.cpp \
           DESolver.cpp \
           print_results.cpp
+if USE_NLOPT
+FIT_SRC += nmsimplex_fit.cpp
+endif
 
 MODEL_SRC = model_object.cpp \
             convolver.cpp
 
-FUNCTION_SRC = function_objects/function_object.cpp \
-               function_objects/func_gaussian.cpp \
-               function_objects/func_exp.cpp \
-               function_objects/func_gen-exp.cpp \
-               function_objects/func_sersic.cpp \
-               function_objects/func_gen-sersic.cpp \
-               function_objects/func_core-sersic.cpp \
-               function_objects/func_broken-exp.cpp \
-               function_objects/func_broken-exp2d.cpp \
-               function_objects/func_moffat.cpp \
-               function_objects/func_flatsky.cpp \
-               function_objects/func_gaussian-ring.cpp \
-               function_objects/func_gaussian-ring2side.cpp \
-               function_objects/func_edge-on-disk_n4762.cpp \
-               function_objects/func_edge-on-disk_n4762v2.cpp \
-               function_objects/func_edge-on-ring.cpp \
-               function_objects/func_edge-on-ring2side.cpp
+FUNCTION_SRC = function_object.cpp \
+               func_gaussian.cpp \
+               func_exp.cpp \
+               func_gen-exp.cpp \
+               func_sersic.cpp \
+               func_gen-sersic.cpp \
+               func_core-sersic.cpp \
+               func_broken-exp.cpp \
+               func_broken-exp2d.cpp \
+               func_moffat.cpp \
+               func_flatsky.cpp \
+               func_gaussian-ring.cpp \
+               func_gaussian-ring2side.cpp \
+               func_edge-on-disk_n4762.cpp \
+               func_edge-on-disk_n4762v2.cpp \
+               func_edge-on-ring.cpp \
+               func_edge-on-ring2side.cpp \
+               add_functions.cpp
+if USE_GSL
+FUNCTION_SRC += func_edge-on-disk.cpp \
+                integrator.cpp \
+                func_expdisk3d.cpp \
+                func_brokenexpdisk3d.cpp \
+                func_gaussianring3d.cpp
+endif
 
 COMMON_SRC = commandline_parser.cpp \
              utilities.cpp \
              image_io.cpp \
-             config_file_parser.cpp \
-             add_functions.cpp
+             config_file_parser.cpp
 
 ################################################################################
 # Header files
 ################################################################################
 
-C_HDR = mersenne_twister.h \
+C_HDR = definitions.h \
+        mersenne_twister.h \
         statistics.h \
         mp_enorm.h
 
@@ -103,33 +98,42 @@ FIT_HDR = diff_evoln_fit.h \
           mpfit_cpp.h \
           param_struct.h \
           print_results.h
+if USE_NLOPT
+FIT_HDR += nmsimplex_fit.h
+endif
                     
 MODEL_HDR = model_object.h \
             convolver.h
 
-FUNCTION_HDR = function_objects/function_object.h \
-               function_objects/func_gaussian.h \
-               function_objects/func_exp.h \
-               function_objects/func_gen-exp.h \
-               function_objects/func_sersic.h \
-               function_objects/func_gen-sersic.h \
-               function_objects/func_core-sersic.h \
-               function_objects/func_broken-exp.h \
-               function_objects/func_broken-exp2d.h \
-               function_objects/func_moffat.h \
-               function_objects/func_flatsky.h \
-               function_objects/func_gaussian-ring.h \
-               function_objects/func_gaussian-ring2side.h \
-               function_objects/func_edge-on-disk_n4762.h \
-               function_objects/func_edge-on-disk_n4762v2.h \
-               function_objects/func_edge-on-ring.h \
-               function_objects/func_edge-on-ring2side.h
+FUNCTION_HDR = function_object.h \
+               func_gaussian.h \
+               func_exp.h \
+               func_gen-exp.h \
+               func_sersic.h \
+               func_gen-sersic.h \
+               func_core-sersic.h \
+               func_broken-exp.h \
+               func_broken-exp2d.h \
+               func_moffat.h \
+               func_flatsky.h \
+               func_gaussian-ring.h \
+               func_gaussian-ring2side.h \
+               func_edge-on-disk_n4762.h \
+               func_edge-on-disk_n4762v2.h \
+               func_edge-on-ring.h \
+               func_edge-on-ring2side.h \
+               add_functions.h
+if USE_GSL
+FUNCTION_HDR += func_edge-on-disk.h \
+                integrator.h \
+                func_expdisk3d.h \
+                func_brokenexpdisk3d.h \
+                func_gaussianring3d.h
+endif
 
 COMMON_HDR = commandline_parser.h \
              image_io.h \
              config_file_parser.h \
-             add_functions.h \
-             definitions.h \
              utilities_pub.h
 
 ################################################################################
@@ -142,15 +146,15 @@ lib_LTLIBRARIES = libimfit.la
 ################################################################################
 
 libimfit_la_SOURCES = $(C_SRC) $(FIT_SRC) $(MODEL_SRC) $(FUNCTION_SRC) \
-                      $(GSL_SRC) $(NLOPT_SRC) \
-                      $(C_HDR) $(FIT_HDR) $(MODEL_HDR) $(FUNCTION_HDR) \
-                      $(GSL_HDR) $(NLOPT_HDR)
+                      $(C_HDR) $(FIT_HDR) $(MODEL_HDR) $(FUNCTION_HDR)
+
+libimfit_la_LIBS = $(my_LIBS)
 
 ################################################################################
 
 makeimagedir = ${includedir}
 
-makeimage_LDADD = $(my_LIBS) libimfit.la
+makeimage_LDADD = $(my_LIBS) $(cfitsio_LIBS) libimfit.la
 
 makeimage_SOURCES = makeimage_main.cpp \
                     $(COMMON_HDR) $(COMMON_SRC)
@@ -160,7 +164,7 @@ makeimage_SOURCES = makeimage_main.cpp \
 
 imfitdir = ${includedir}
 
-imfit_LDADD = $(my_LIBS) libimfit.la
+imfit_LDADD = $(my_LIBS) $(cfitsio_LIBS) libimfit.la
 
 imfit_SOURCES = bootstrap_errors.h \
                 bootstrap_errors.cpp \

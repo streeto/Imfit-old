@@ -61,7 +61,7 @@
 #include "mersenne_twister.h"
 
 #include "definitions.h"
-#include "function_objects/function_object.h"
+#include "function_object.h"
 #include "model_object.h"
 #include "mp_enorm.h"
 #include "param_struct.h"
