@@ -3,7 +3,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 AM_LDFLAGS =
 AM_CFLAGS = $(fftw_CFLAGS) $(cfitsio_CFLAGS)
 AM_CXXFLAGS = $(fftw_CXXFLAGS) $(cfitsio_CXXFLAGS)
-AM_CPPFLAGS = -I${top_srcdir}/src -I${top_srcdir}/src/function_objects
+AM_CPPFLAGS = -I${top_srcdir}/src
 my_LIBS = $(fftw_LIBS)
 
 if USE_OPENMP
