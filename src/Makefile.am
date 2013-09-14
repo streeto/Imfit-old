@@ -1,5 +1,4 @@
 AUTOMAKE_OPTIONS = subdir-objects
-ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 AM_LDFLAGS =
 AM_CFLAGS = $(fftw_CFLAGS) $(cfitsio_CFLAGS)
@@ -57,6 +56,12 @@ C_SRC = mp_enorm.c \
         statistics.c \
         mersenne_twister.c
 
+FIT_SRC = levmar_fit.cpp \
+          mpfit.cpp \
+          diff_evoln_fit.cpp \
+          DESolver.cpp \
+          print_results.cpp
+
 MODEL_SRC = model_object.cpp \
             convolver.cpp
 
@@ -92,6 +97,12 @@ C_HDR = mersenne_twister.h \
         statistics.h \
         mp_enorm.h
 
+FIT_HDR = diff_evoln_fit.h \
+          DESolver.h \
+          levmar_fit.h \
+          mpfit_cpp.h \
+          param_struct.h \
+          print_results.h
                     
 MODEL_HDR = model_object.h \
             convolver.h
@@ -126,41 +137,33 @@ COMMON_HDR = commandline_parser.h \
 ################################################################################
 
 bin_PROGRAMS = imfit makeimage
+lib_LTLIBRARIES = libimfit.la
+
+################################################################################
+
+libimfit_la_SOURCES = $(C_SRC) $(FIT_SRC) $(MODEL_SRC) $(FUNCTION_SRC) \
+                      $(GSL_SRC) $(NLOPT_SRC) \
+                      $(C_HDR) $(FIT_HDR) $(MODEL_HDR) $(FUNCTION_HDR) \
+                      $(GSL_HDR) $(NLOPT_HDR)
 
 ################################################################################
 
 makeimagedir = ${includedir}
 
-makeimage_LDADD = $(my_LIBS)
+makeimage_LDADD = $(my_LIBS) libimfit.la
 
-makeimage_SOURCES = $(C_SRC) $(MODEL_SRC) $(FUNCTION_SRC) $(COMMON_SRC) \
-                    $(GSL_SRC) $(NLOPT_SRC) \
-                    $(C_HDR) $(MODEL_HDR) $(FUNCTION_HDR) $(COMMON_HDR) \
-                    $(GSL_HDR) $(NLOPT_HDR) \
-                    makeimage_main.cpp
+makeimage_SOURCES = makeimage_main.cpp \
+                    $(COMMON_HDR) $(COMMON_SRC)
+                    
 
 ################################################################################
 
 imfitdir = ${includedir}
 
-imfit_LDADD = $(my_LIBS)
+imfit_LDADD = $(my_LIBS) libimfit.la
 
-imfit_SOURCES = $(C_SRC) $(MODEL_SRC) $(FUNCTION_SRC) $(COMMON_SRC) \
-                $(GSL_SRC) $(NLOPT_SRC) \
-                $(C_HDR) $(MODEL_HDR) $(FUNCTION_HDR) $(COMMON_HDR) \
-                $(GSL_HDR) $(NLOPT_HDR) \
-                bootstrap_errors.h \
-                diff_evoln_fit.h \
-                DESolver.h \
-                levmar_fit.h \
-                mpfit_cpp.h \
-                param_struct.h \
-                print_results.h \
-                levmar_fit.cpp \
-                mpfit.cpp \
-                diff_evoln_fit.cpp \
-                DESolver.cpp \
-                print_results.cpp \
+imfit_SOURCES = bootstrap_errors.h \
                 bootstrap_errors.cpp \
-                imfit_main.cpp
+                imfit_main.cpp \
+                $(COMMON_HDR) $(COMMON_SRC)
                 
