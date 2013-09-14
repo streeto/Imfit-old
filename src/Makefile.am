@@ -136,6 +136,19 @@ COMMON_HDR = commandline_parser.h \
              config_file_parser.h \
              utilities_pub.h
 
+LIB_HDR = definitions.h \
+          model_object.h \
+          add_functions.h \
+          param_struct.h \
+          levmar_fit.h \
+          diff_evoln_fit.h \
+          function_object.h \
+          convolver.h
+if USE_NLOPT
+LIB_HDR += nmsimplex_fit.h
+endif
+          
+
 ################################################################################
 # Main programs
 ################################################################################
@@ -150,6 +163,8 @@ libimfit_la_SOURCES = $(C_SRC) $(FIT_SRC) $(MODEL_SRC) $(FUNCTION_SRC) \
 
 libimfit_la_LIBS = $(my_LIBS)
 
+pkginclude_HEADERS = $(LIB_HDR)
+                     
 ################################################################################
 
 makeimagedir = ${includedir}
