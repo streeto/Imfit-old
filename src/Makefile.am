@@ -44,6 +44,7 @@ FIT_SRC = levmar_fit.cpp \
           mpfit.cpp \
           diff_evoln_fit.cpp \
           DESolver.cpp \
+          utilities.cpp \
           print_results.cpp
 if USE_NLOPT
 FIT_SRC += nmsimplex_fit.cpp
@@ -79,7 +80,6 @@ FUNCTION_SRC += func_edge-on-disk.cpp \
 endif
 
 COMMON_SRC = commandline_parser.cpp \
-             utilities.cpp \
              image_io.cpp \
              config_file_parser.cpp
 
@@ -97,6 +97,7 @@ FIT_HDR = diff_evoln_fit.h \
           levmar_fit.h \
           mpfit_cpp.h \
           param_struct.h \
+          utilities_pub.h \
           print_results.h
 if USE_NLOPT
 FIT_HDR += nmsimplex_fit.h
@@ -133,8 +134,7 @@ endif
 
 COMMON_HDR = commandline_parser.h \
              image_io.h \
-             config_file_parser.h \
-             utilities_pub.h
+             config_file_parser.h
 
 LIB_HDR = definitions.h \
           model_object.h \
