@@ -4,7 +4,6 @@ AM_LDFLAGS =
 AM_CFLAGS = $(fftw_CFLAGS) $(cfitsio_CFLAGS)
 AM_CXXFLAGS = $(fftw_CXXFLAGS) $(cfitsio_CXXFLAGS)
 AM_CPPFLAGS = -I${top_srcdir}/src
-my_LIBS = $(fftw_LIBS)
 
 if USE_OPENMP
 AM_CPPFLAGS += -DUSE_OPENMP
@@ -13,21 +12,17 @@ AM_LDFLAGS += $(OPENMP_LDFLAGS)
 endif
 
 if USE_FFTW_THREADS
-# This is probably not the most portable way.
-my_LIBS += -lfftw3_threads
 AM_CPPFLAGS += -DFFTW_THREADING
 endif
 
 if USE_GSL
 AM_CXXFLAGS += $(gsl_CXXFLAGS)
-my_LIBS += $(gsl_LIBS)
 else
 AM_CPPFLAGS += -DNO_GSL
 endif
 
 if USE_NLOPT
 AM_CXXFLAGS += $(nlopt_CXXFLAGS)
-my_LIBS += $(nlopt_LIBS)
 else
 AM_CPPFLAGS += -DNO_NLOPT
 endif
@@ -157,12 +152,15 @@ endif
 bin_PROGRAMS = imfit makeimage
 lib_LTLIBRARIES = libimfit.la
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = ${top_srcdir}/imfit.pc
+
 ################################################################################
 
 libimfit_la_SOURCES = $(C_SRC) $(FIT_SRC) $(MODEL_SRC) $(FUNCTION_SRC) \
                       $(C_HDR) $(FIT_HDR) $(MODEL_HDR) $(FUNCTION_HDR)
 
-libimfit_la_LIBS = $(my_LIBS)
+libimfit_la_LDFLAGS = $(fftw_LIBS) $(gsl_LIBS) $(nlopt_LIBS)
 
 pkginclude_HEADERS = $(LIB_HDR)
                      
@@ -170,7 +168,7 @@ pkginclude_HEADERS = $(LIB_HDR)
 
 makeimagedir = ${includedir}
 
-makeimage_LDADD = $(my_LIBS) $(cfitsio_LIBS) libimfit.la
+makeimage_LDADD = $(fftw_LIBS) $(gsl_LIBS) $(nlopt_LIBS) $(cfitsio_LIBS) libimfit.la
 
 makeimage_SOURCES = makeimage_main.cpp \
                     $(COMMON_HDR) $(COMMON_SRC)
@@ -180,7 +178,7 @@ makeimage_SOURCES = makeimage_main.cpp \
 
 imfitdir = ${includedir}
 
-imfit_LDADD = $(my_LIBS) $(cfitsio_LIBS) libimfit.la
+imfit_LDADD = $(fftw_LIBS) $(gsl_LIBS) $(nlopt_LIBS) $(cfitsio_LIBS) libimfit.la
 
 imfit_SOURCES = bootstrap_errors.h \
                 bootstrap_errors.cpp \
