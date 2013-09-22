@@ -23,5 +23,7 @@ void PrintAvailableFunctions( );
 // names (suitable for copying and pasting into a config file for makeimage or imfit).
 void ListFunctionParameters( );
 
+// Fill a vector with the parameters of function "functionName".
+int GetFunctionParameters( string &functionName, vector<string> &parameterNameList );
 
 #endif  // _ADD_FUNCTION_H_

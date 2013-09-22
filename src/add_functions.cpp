@@ -334,4 +334,27 @@ void ListFunctionParameters( )
 }
 
 
+int GetFunctionParameters(string &functionName, vector<string> &parameterNameList)
+{
+  FunctionObject  *thisFunctionObj;
+  map<string, factory*>  factory_map;
+  vector<string> factory_map_names;
+
+  PopulateFactoryMap(factory_map);
+
+  if (factory_map.count(functionName) < 1) {
+    return - 1;
+  }
+  else {
+    thisFunctionObj = factory_map[functionName]->create();
+    thisFunctionObj->GetParameterNames(parameterNameList);
+    delete thisFunctionObj;
+  }
+
+  // Avoid minor memory leak by freeing the individual funcobj_factory objects
+  FreeFactories(factory_map);
+
+  return 0;
+}
+
 /* END OF FILE: add_functions.cpp ---------------------------------------- */
