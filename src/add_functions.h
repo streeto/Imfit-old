@@ -26,4 +26,7 @@ void ListFunctionParameters( );
 // Fill a vector with the parameters of function "functionName".
 int GetFunctionParameters( string &functionName, vector<string> &parameterNameList );
 
+// Fill a vector with the names of the available functions.
+void GetFunctionNames( vector<string> &functionNameList );
+
 #endif  // _ADD_FUNCTION_H_

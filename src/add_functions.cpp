@@ -357,4 +357,26 @@ int GetFunctionParameters(string &functionName, vector<string> &parameterNameLis
   return 0;
 }
 
+
+void GetFunctionNames( vector<string> &functionNameList )
+{
+  string  currentName;
+  FunctionObject  *thisFunctionObj;
+  map<string, factory*>  factory_map;
+
+  PopulateFactoryMap(factory_map);
+
+  // get list of keys (function names) and step through it
+  map<string, factory*>::iterator  w;
+
+  for (w = factory_map.begin(); w != factory_map.end(); w++) {
+    thisFunctionObj = w->second->create();
+    currentName = thisFunctionObj->GetShortName();
+    functionNameList.push_back(currentName);
+    delete thisFunctionObj;
+  }
+
+  // Avoid minor memory leak by freeing the individual funcobj_factory objects
+  FreeFactories(factory_map);
+}
 /* END OF FILE: add_functions.cpp ---------------------------------------- */
