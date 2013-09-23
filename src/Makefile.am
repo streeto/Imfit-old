@@ -139,7 +139,9 @@ LIB_HDR = definitions.h \
           diff_evoln_fit.h \
           function_object.h \
           convolver.h \
-          config_file_parser.h
+          config_file_parser.h \
+          print_results.h \
+          mpfit_cpp.h
 if USE_NLOPT
 LIB_HDR += nmsimplex_fit.h
 endif
