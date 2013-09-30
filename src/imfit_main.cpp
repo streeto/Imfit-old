@@ -462,8 +462,9 @@ int main(int argc, char *argv[])
     // DO THE FIT!
     if (options.solver == MPFIT_SOLVER) {
       printf("\nCalling Levenberg-Marquardt solver ...\n");
+      mp_result result;
       status = LevMarFit(nParamsTot, nFreeParams, nPixels_tot, paramsVect, parameterInfo, 
-      					theModel, options.ftol, paramLimitsExist, options.verbose);
+      					theModel, options.ftol, paramLimitsExist, result, options.verbose);
     }
     else if (options.solver == DIFF_EVOLN_SOLVER) {
       printf("\nCalling Differential Evolution solver ..\n");
