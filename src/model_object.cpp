@@ -119,6 +119,7 @@ ModelObject::ModelObject( )
   nFunctionParams = 0;
   nParamsTot = 0;
   debugLevel = 0;
+  printDebug = true;
   
   // default image characteristics
   gain = 1.0;
@@ -135,12 +136,15 @@ ModelObject::ModelObject( )
 
 void ModelObject::SetDebugLevel( int debuggingLevel )
 {
-  if (debuggingLevel < 0) {
-    printf("ModelObject::SetDebugLevel -- WARNING: debugging level must be > 0");
-    printf(" (%d was supplied); debugging level left unchanged.\n", debuggingLevel);
-  }
-  else
+  if (debuggingLevel >= 0) {
+    printf("ModelObject::SetDebugLevel -- Enabled debug level %d", debuggingLevel);
     debugLevel = debuggingLevel;
+    printDebug = true;
+  }
+  else {
+    debugLevel = 0;
+    printDebug = false;
+  }
 }
 
 
@@ -394,7 +398,9 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
     case MASK_ZERO_IS_GOOD:
       // This is our "standard" input mask: good pixels are zero, bad pixels
       // are positive integers
-      printf("ModelObject::AddMaskVector -- treating zero-valued pixels as good ...\n");
+      if (printDebug) {
+        printf("ModelObject::AddMaskVector -- treating zero-valued pixels as good ...\n");
+      }
       for (int z = 0; z < nDataVals; z++) {
         if (maskVector[z] > 0.0) {
           maskVector[z] = 0.0;
@@ -406,7 +412,9 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
       break;
     case MASK_ZERO_IS_BAD:
       // Alternate form for input masks: good pixels are 1, bad pixels are 0
-      printf("ModelObject::AddMaskVector -- treating zero-valued pixels as bad ...\n");
+      if (printDebug) {
+        printf("ModelObject::AddMaskVector -- treating zero-valued pixels as bad ...\n");
+      }
       for (int z = 0; z < nDataVals; z++) {
         if (maskVector[z] < 1.0)
           maskVector[z] = 0.0;
@@ -433,8 +441,10 @@ void ModelObject::ApplyMask( )
     for (int z = 0; z < nDataVals; z++) {
       weightVector[z] = maskVector[z] * weightVector[z];
     }
-    printf("ModelObject: mask vector applied to weight vector. ");
-    printf("(%d valid pixels remain)\n", nValidDataVals);
+    if (printDebug) {
+      printf("ModelObject: mask vector applied to weight vector. ");
+      printf("(%d valid pixels remain)\n", nValidDataVals);
+    }
   }
   else {
     printf(" ** ALERT: ModelObject::ApplyMask() called, but we are missing either\n");
