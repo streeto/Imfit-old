@@ -1,3 +1,13 @@
+Imfit is a program for fitting astronomical images -- especially images of
+galaxies, though it can in principle be used for fitting other sources.
+
+Imfit was developed by Peter Erwin <erwin@mpe.mpg.de>, this is a modified
+version intended to (1) change the installation procedure to autotools and
+(2) expose the internal API as a shared library to allow using Imfit
+from Python. If you are interested see https://github.com/streeto/python-imfit.
+
+*** Original README ***
+
 This archive contains imfit, a program for fitting arbitrary sets of 2D model
 functions to astronomical images in FITS format. Also included is makeimage, a
 program for generating model FITS images (using, for example, the output of
