@@ -37,11 +37,10 @@
 #include "model_object.h"
 #include "mpfit_cpp.h"
 #include "levmar_fit.h"
-
 #ifndef NO_NLOPT
 #include "nmsimplex_fit.h"
 #endif
-
+#include "diff_evoln_fit.h"
 #include "mersenne_twister.h"
 #include "bootstrap_errors.h"
 #include "statistics.h"
@@ -82,7 +81,11 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
   if (! usingCashStatistic)
     printf("\nStarting bootstrap iterations (L-M solver): ");
   else
+#ifndef NO_NLOPT
     printf("\nStarting bootstrap iterations (N-M simplex solver): ");
+#else
+    printf("\nStarting bootstrap iterations (DE solver): ");
+#endif
 
   for (nIter = 0; nIter < nIterations; nIter++) {
     printf("%d...  ", nIter + 1);
@@ -99,7 +102,8 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
       status = NMSimplexFit(nParams, paramsVect, parameterLimits, theModel, ftol,
       						verboseLevel);
 #else
-      printf("WARNING: Compiled with NO_NLOPT, but reached a NMSimplexFit function!");
+      status = DiffEvolnFit(nParams, paramsVect, parameterLimits, theModel, ftol,
+      						verboseLevel);
 #endif
     }
     for (i = 0; i < nParams; i++) {
