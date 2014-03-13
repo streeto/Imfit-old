@@ -13,25 +13,25 @@ fi
 echo ""
 echo "Running tests for makeimage..."
 # simple tests using small images
-./makeimage tests/config_biggertest_4c.dat -o biggertest.fits --ncols 64 --nrows 64 > test_dump1
-./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest.fits > test_dump2
+src/makeimage tests/config_biggertest_4c.dat -o biggertest.fits --ncols 64 --nrows 64 > test_dump1
+src/makeimage tests/config_makeimage_gensersic512.dat -o gensersictest.fits > test_dump2
 # test two functions and also --output-functions mode
-./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp.fits --output-functions singleImage > test_dump3
+src/makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp.fits --output-functions singleImage > test_dump3
 # same, but now testing --refimage
-./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp_b.fits --refimage tests/gensersictest_orig.fits > test_dump3b
+src/makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp_b.fits --refimage tests/gensersictest_orig.fits > test_dump3b
 # test using PSF convolution:
-./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest_conv.fits --psf tests/psf_moffat_35.fits > test_dump4
+src/makeimage tests/config_makeimage_gensersic512.dat -o gensersictest_conv.fits --psf tests/psf_moffat_35.fits > test_dump4
 # test doing --print-fluxes:
-./makeimage tests/config_makeimage_sersic+exp512.dat --print-fluxes --nosave > test_dump5
+src/makeimage tests/config_makeimage_sersic+exp512.dat --print-fluxes --nosave > test_dump5
 # tests of --output-functions with PSF convolution:
-./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp_conv.fits --output-functions singleImage_conv --psf tests/psf_moffat_35.fits > test_dump_null
+src/makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp_conv.fits --output-functions singleImage_conv --psf tests/psf_moffat_35.fits > test_dump_null
 
 # testing that bad config files are caught (redirect stderr to test_dump* files):
-./makeimage tests/config_makeimage_sersictest512_bad1.dat &> test_dump6
-./makeimage tests/config_makeimage_sersictest512_bad2.dat &> test_dump7
-./makeimage tests/config_makeimage_sersictest512_bad3.dat &> test_dump8
-./makeimage tests/config_makeimage_sersictest512_bad4.dat &> test_dump9
-./makeimage tests/config_makeimage_sersictest512_bad5.dat &> test_dump10
+src/makeimage tests/config_makeimage_sersictest512_bad1.dat &> test_dump6
+src/makeimage tests/config_makeimage_sersictest512_bad2.dat &> test_dump7
+src/makeimage tests/config_makeimage_sersictest512_bad3.dat &> test_dump8
+src/makeimage tests/config_makeimage_sersictest512_bad4.dat &> test_dump9
+src/makeimage tests/config_makeimage_sersictest512_bad5.dat &> test_dump10
 echo ""
 
 echo -n "*** Diff comparison with archives: biggertest... "

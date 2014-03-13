@@ -16,19 +16,19 @@ fi
 echo ""
 echo "Running tests for imfit..."
 # simple tests using small images
-./imfit --config tests/config_imfit_expdisk32.dat --noise tests/uniform_image32.fits tests/testimage_expdisk32.fits --nosubsampling &> test_dump1
+src/imfit --config tests/config_imfit_expdisk32.dat --noise tests/uniform_image32.fits tests/testimage_expdisk32.fits --nosubsampling &> test_dump1
 
 # test using cutout SDSS image
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64.dat --gain=4.725 --readnoise=4.3 --sky=130.1 &> test_dump2
+src/imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64.dat --gain=4.725 --readnoise=4.3 --sky=130.1 &> test_dump2
 # same, now with gain, etc. put into config file
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat  &> test_dump3
+src/imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat  &> test_dump3
 # same, using N-M Simplex fitting
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --nm --quiet &> test_dump3b
+src/imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --nm --quiet &> test_dump3b
 # same, using DE fitting [skip if requested by user, since it's slow!]
 if [ "$1" != "--node" ]
 then
   echo -n "   (now running fit with DE ...)"
-  ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --de &>  test_dump3c
+  src/imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --de &>  test_dump3c
   echo ""
 else
   echo "   (skipping DE test)"
@@ -37,30 +37,30 @@ fi
 # test non-square SDSS image + PSF convolution; then test count/sec version with --exptime
 # option; then just do chisquare-only calculations (for chi^2 and Cash statistic)
 echo -n "   (now running fit with PSF convolution ...)"
-./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits &> test_dump4
+src/imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits &> test_dump4
 # test on count/sec image using --exptime; remember to rescale --sky as well! (= 154.33 / 53.907456)
-./imfit tests/n3073rss_small_cps.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --exptime=53.907456 --sky=2.8628692847238053 &> test_dump4b
-./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only &> test_dump4c
-./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only --cashstat &> test_dump4d
+src/imfit tests/n3073rss_small_cps.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --exptime=53.907456 --sky=2.8628692847238053 &> test_dump4b
+src/imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only &> test_dump4c
+src/imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only --cashstat &> test_dump4d
 echo ""
 
 # test fitting with Cash statistic
 echo -n "   (now running Cash-statistic fit ...)"
-./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --cashstat --nm &> test_dump5
+src/imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --cashstat --nm &> test_dump5
 
 # testing error-image generation and saving
 # first using data values for errors, then using model values (should be identical)
-./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --save-weights=test_weights_data.fits &> /dev/null
-./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --model-errors --save-weights=test_weights_model.fits &> /dev/null
+src/imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --save-weights=test_weights_data.fits &> /dev/null
+src/imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --model-errors --save-weights=test_weights_model.fits &> /dev/null
 
 #    Testing to see that bad config files are caught:
-./imfit --config tests/config_makeimage_sersictest512_bad1.dat &> test_dump_bad1
-./imfit --config tests/config_makeimage_sersictest512_bad2.dat &> test_dump_bad2
-./imfit --config tests/config_makeimage_sersictest512_bad3.dat &> test_dump_bad3
-./imfit --config tests/config_makeimage_sersictest512_bad4.dat &> test_dump_bad4
-./imfit --config tests/config_imfit_sersictest512_badlimits1.dat &> test_dump_bad5
-./imfit --config tests/config_imfit_sersictest512_badlimits2.dat &> test_dump_bad6
-./imfit --config tests/config_imfit_sersictest512_badlimits3.dat &> test_dump_bad7
+src/imfit --config tests/config_makeimage_sersictest512_bad1.dat &> test_dump_bad1
+src/imfit --config tests/config_makeimage_sersictest512_bad2.dat &> test_dump_bad2
+src/imfit --config tests/config_makeimage_sersictest512_bad3.dat &> test_dump_bad3
+src/imfit --config tests/config_makeimage_sersictest512_bad4.dat &> test_dump_bad4
+src/imfit --config tests/config_imfit_sersictest512_badlimits1.dat &> test_dump_bad5
+src/imfit --config tests/config_imfit_sersictest512_badlimits2.dat &> test_dump_bad6
+src/imfit --config tests/config_imfit_sersictest512_badlimits3.dat &> test_dump_bad7
 
 echo ""
 
