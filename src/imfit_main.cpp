@@ -372,29 +372,46 @@ int main(int argc, char *argv[])
       fprintf(stderr, "*** ERROR -- Cannot use Cash statistic with L-M solver!\n\n");
       return -1;
     }
-    theModel->UseCashStatistic();
+    if (!theModel->UseCashStatistic()) {
+  	  printf("Exiting ...\n\n");
+  	  exit(-1);
+    }
     // do other stuff
   } else {
     // normal chi^2 statistics, so we either add error/noise image, or calculate it
-    if (options.noiseImagePresent)
-      theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
-                               options.errorType);
+    if (options.noiseImagePresent) {
+      if (!theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
+                                    options.errorType)) {
+    	printf("Exiting ...\n\n");
+    	exit(-1);
+      }
+    }
     else {
       if (options.useModelForErrors) {
         printf("* No noise image supplied ... will generate noise image from model image.\n");
-        theModel->UseModelErrors();
+        if (!theModel->UseModelErrors()) {
+      	  printf("Exiting ...\n\n");
+      	  exit(-1);
+        }
       }
       else {
         printf("* No noise image supplied ... will generate noise image from input image.\n");
-        theModel->GenerateErrorVector();
+        if (!theModel->GenerateErrorVector()) {
+      	  printf("Exiting ...\n\n");
+      	  exit(-1);
+        }
       }
     }
   }
   
   // If user supplied a mask image, add it and apply it to the internal weight image
   if (maskAllocated) {
-    theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
-                             options.maskFormat);
+    if (!theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
+                                 options.maskFormat)) {
+  	  printf("Exiting ...\n\n");
+  	  exit(-1);
+    }
+
     theModel->ApplyMask();
   }
 

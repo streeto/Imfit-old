@@ -56,8 +56,7 @@ int myfunc_mpfit( int nDataVals, int nParams, double *params, double *deviates,
            double **derivatives, ModelObject *theModel )
 {
 
-  theModel->ComputeDeviates(deviates, params);
-  return 0;
+  return theModel->ComputeDeviates(deviates, params) ? 0 : -1;
 }
 
 

@@ -257,7 +257,11 @@ int main( int argc, char *argv[] )
     theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
 
   /* Define the size of the requested model image */
-  theModel->SetupModelImage(nColumns, nRows);
+  ;
+  if (!theModel->SetupModelImage(nColumns, nRows)) {
+    printf("Exiting ...\n\n");
+    exit(-1);
+  }
   theModel->PrintDescription();
 
 
@@ -281,7 +285,10 @@ int main( int argc, char *argv[] )
 
   if (! printFluxesOnly) {
     // OK, we're generating a normal model image
-    theModel->CreateModelImage(paramsVect);
+    if (!theModel->CreateModelImage(paramsVect)) {
+      printf("Exiting ...\n\n");
+  	  exit(-1);
+    }
   
     // TESTING (remove later)
     if (options.printImages)
@@ -309,6 +316,7 @@ int main( int argc, char *argv[] )
       string  currentFilename;
       vector<string> functionNames;
       char  numstring[21];   // large enough to hold any 64-bit integer
+      double* image;
       int  nFuncs = theModel->GetNFunctions();
       theModel->GetFunctionNames(functionNames);
       string  newString;
@@ -325,7 +333,12 @@ int main( int argc, char *argv[] )
         asprintf(&new_string, "FUNCTION %s", functionNames[i].c_str());
         newString = new_string;
         imageCommentsList.push_back(newString);
-        SaveVectorAsImage(theModel->GetSingleFunctionImage(paramsVect, i), currentFilename, 
+        image = theModel->GetSingleFunctionImage(paramsVect, i);
+        if (image == NULL) {
+          printf("Exiting ...\n\n");
+      	  exit(-1);
+        }
+        SaveVectorAsImage(image, currentFilename,
                         nColumns, nRows, imageCommentsList);
         imageCommentsList.pop_back();
       }

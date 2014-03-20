@@ -211,14 +211,14 @@ void ModelObject::SetZeroPoint( double zeroPointValue )
 
 /* ---------------- PUBLIC METHOD: AddImageDataVector ------------------ */
 
-void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
+bool ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
                                       int nImageRows )
 {
   nDataVals = nValidDataVals = nImageColumns * nImageRows;
   dataVector = pixelVector;
   dataValsSet = true;
   
-  SetupModelImage(nImageColumns, nImageRows);
+  return SetupModelImage(nImageColumns, nImageRows);
 }
 
 
@@ -230,7 +230,7 @@ void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
 // nImageColumns and nImageRows should refer to the size of the data image
 // (in image-fitting mode) OR the requested size of the output model image
 // (in make-image mode).
-void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
+bool ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
 {
   assert( (nImageColumns >= 1) && (nImageRows >= 1) );
   
@@ -242,7 +242,9 @@ void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
     nModelColumns = nDataColumns + 2*nPSFColumns;
     nModelRows = nDataRows + 2*nPSFRows;
     psfConvolver->SetupImage(nModelColumns, nModelRows);
-    psfConvolver->DoFullSetup(debugLevel);
+    if (!psfConvolver->DoFullSetup(debugLevel)) {
+      return false;
+    }
     nModelVals = nModelColumns*nModelRows;
   }
   else {
@@ -253,6 +255,7 @@ void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
   // Allocate modelimage vector
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
   modelVectorAllocated = true;
+  return true;
 }
 
 
@@ -278,7 +281,7 @@ void ModelObject::AddImageCharacteristics( double imageGain, double readoutNoise
 
 /* ---------------- PUBLIC METHOD: AddErrorVector ---------------------- */
 
-void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
+bool ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
                                       int nImageRows, double *pixelVector,
                                       int inputType )
 {
@@ -315,9 +318,9 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
     weightValsSet = true;
   else {
     printf("ModelObject::AddErrorVector -- Conversion of error vector resulted in bad values!\n");
-    printf("Exiting ...\n\n");
-    exit(-1);
+    return false;
   }
+  return true;
 }
 
 
@@ -341,7 +344,7 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
 //    noise(adu)^2 = (object_flux(adu) + sky(adu))/gain_eff + N_combined * rdnoise^2/gain_eff^2
 // (where "adu" can be adu/sec if t_exp != 1)
 
-void ModelObject::GenerateErrorVector( )
+bool ModelObject::GenerateErrorVector( )
 {
   double  noise_squared, totalFlux;
 
@@ -367,9 +370,9 @@ void ModelObject::GenerateErrorVector( )
     weightValsSet = true;
   else {
     printf("ModelObject::GenerateErrorVector -- Calculation of error vector resulted in bad values!\n");
-    printf("Exiting ...\n\n");
-    exit(-1);
+    return false;
   }
+  return true;
 }
 
 
@@ -381,7 +384,7 @@ void ModelObject::GenerateErrorVector( )
 // to 1, so that we can multiply the weight vector by the (internal) mask values.
 // The mask is applied to the weight vector by calling the ApplyMask() method
 // for a given ModelObject instance.
-void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
+bool ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
                                       int nImageRows, double *pixelVector,
                                       int inputType )
 {
@@ -426,10 +429,11 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
       break;
     default:
       printf("ModelObject::AddMaskVector -- WARNING: unknown inputType detected!\n\n");
-      exit(-1);
+      return false;
   }
       
   maskExists = true;
+  return true;
 }
 
 
@@ -475,22 +479,23 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
 
 
 /* ---------------- PUBLIC METHOD: FinalSetup -------------------------- */
-void ModelObject::FinalSetup( )
+bool ModelObject::FinalSetup( )
 {
   if (maskExists)
     ApplyMask();
   bool dataOK = VetDataVector();
   if (! dataOK) {
     fprintf(stderr, "ERROR: bad (non-masked) data values!\n\n");
-    exit(-1);
+    return false;
   }
+  return true;
 }
 
 
 
 /* ---------------- PUBLIC METHOD: CreateModelImage -------------------- */
 
-void ModelObject::CreateModelImage( double params[] )
+bool ModelObject::CreateModelImage( double params[] )
 {
   double  x0, y0, x, y, newValSum;
   int  i, j, n;
@@ -505,8 +510,7 @@ void ModelObject::CreateModelImage( double params[] )
       printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
     printf("\n");
 #endif
-    printf("Exiting ...\n\n");
-    exit(-1);
+    return false;
   }
 
   // Separate out the individual-component parameters and tell the
@@ -563,6 +567,7 @@ void ModelObject::CreateModelImage( double params[] )
     psfConvolver->ConvolveImage(modelVector);
   
   modelImageComputed = true;
+  return true;
 }
 
 
@@ -592,8 +597,7 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
       printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
     printf("\n");
 #endif
-    printf("Exiting ...\n\n");
-    exit(-1);
+    return NULL;
   }
 
   // Separate out the individual-component parameters and tell the
@@ -708,7 +712,7 @@ void ModelObject::UpdateWeightVector(  )
  * Primarily for use by Levenberg-Marquardt solver (mpfit.cpp); for standard
  * chi^2 calculations, use ChiSquared().
  */
-void ModelObject::ComputeDeviates( double yResults[], double params[] )
+bool ModelObject::ComputeDeviates( double yResults[], double params[] )
 {
   int  iDataRow, iDataCol, z, zModel, b, bModel;
   
@@ -719,7 +723,9 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
   printf("\n");
 #endif
 
-  CreateModelImage(params);
+  if (!CreateModelImage(params)) {
+    return false;
+  }
   if (modelErrors)
     UpdateWeightVector();
 
@@ -761,13 +767,13 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
       }
     }
   }
-
+  return true;
 }
 
 
 /* ---------------- PUBLIC METHOD: UseModelErrors --------==----------- */
 
-void ModelObject::UseModelErrors( )
+bool ModelObject::UseModelErrors( )
 {
   modelErrors = true;
   // Allocate storage for weight image (do this here because we assume that
@@ -775,8 +781,7 @@ void ModelObject::UseModelErrors( )
   // Cash statistic), and set all values = 1
   if (weightVectorAllocated) {
     printf("ERROR: ModelImage::UseModelErrors -- weight vector already allocated!\n");
-    printf("Exiting ...\n\n");
-    exit(-1);
+    return false;
   }
   weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   for (int z = 0; z < nDataVals; z++) {
@@ -784,12 +789,13 @@ void ModelObject::UseModelErrors( )
   }
   weightVectorAllocated = true;
   weightValsSet = true;
+  return true;
 }
 
 
 /* ---------------- PUBLIC METHOD: UseCashStatistic ------------------- */
 
-void ModelObject::UseCashStatistic( )
+bool ModelObject::UseCashStatistic( )
 {
   useCashStatistic = true;
 
@@ -798,8 +804,7 @@ void ModelObject::UseCashStatistic( )
   // Cash statistic), and set all values = 1
   if (weightVectorAllocated) {
     printf("ERROR: ModelImage::UseCashStatistic -- weight vector already allocated!\n");
-    printf("Exiting ...\n\n");
-    exit(-1);
+    return false;
   }
   weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   for (int z = 0; z < nDataVals; z++) {
@@ -807,6 +812,7 @@ void ModelObject::UseCashStatistic( )
   }
   weightVectorAllocated = true;
   weightValsSet = true;
+  return true;
 }
 
 
@@ -846,7 +852,9 @@ double ModelObject::ChiSquared( double params[] )
     deviatesVectorAllocated = true;
   }
   
-  CreateModelImage(params);
+  if (!CreateModelImage(params)) {
+    return -1.0;
+  }
   if (modelErrors)
     UpdateWeightVector();
   
@@ -904,7 +912,9 @@ double ModelObject::CashStatistic( double params[] )
   double  modVal, dataVal, logModel;
   double  cashStat = 0.0;
   
-  CreateModelImage(params);
+  if (!CreateModelImage(params)) {
+    return -1.0;
+  }
   
   if (doConvolution) {
     // Step through model image so that we correctly match its pixels with corresponding

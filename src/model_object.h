@@ -52,17 +52,17 @@ class ModelObject
 //     void SetSkyBackground( double originalSkyValue );
 
 	// 2D only
-    void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows );
+    bool AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows );
 
 	// 2D only
     void AddImageCharacteristics( double imageGain, double readoutNoise, double expTime, 
     							int nCombinedImages, double originalSkyBackground );
     
 	// 2D only
-    void SetupModelImage( int nImageColumns, int nImageRows );
+    bool SetupModelImage( int nImageColumns, int nImageRows );
     
 	// 2D only
-    virtual void AddErrorVector( int nDataValues, int nImageColumns, int nImageRows,
+    virtual bool AddErrorVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
     // 1D only
@@ -72,10 +72,10 @@ class ModelObject
     virtual void AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { ; };
     
 	// 2D only
-    virtual void GenerateErrorVector( );
+    virtual bool GenerateErrorVector( );
 
 	// 2D only
-    virtual void AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
+    virtual bool AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
 	// 2D only
@@ -89,19 +89,19 @@ class ModelObject
     virtual void ApplyMask( );
 
     // common, but Specialized by ModelObject1D
-    virtual void CreateModelImage( double params[] );
+    virtual bool CreateModelImage( double params[] );
     
     // 2D only
     void UpdateWeightVector(  );
 
     // Specialized by ModelObject1D
-    virtual void ComputeDeviates( double yResults[], double params[] );
+    virtual bool ComputeDeviates( double yResults[], double params[] );
 
      // common, not specialized
-    virtual void UseModelErrors( );
+    virtual bool UseModelErrors( );
 
      // common, not specialized
-    virtual void UseCashStatistic( );
+    virtual bool UseCashStatistic( );
  
      // common, not specialized
     virtual bool UsingCashStatistic( );
@@ -141,7 +141,7 @@ class ModelObject
     virtual void PopulateParameterNames( );
 
     // common, might be specialized...
-    virtual void FinalSetup( );
+    virtual bool FinalSetup( );
 
     // common, not specialized
     string& GetParameterName( int i );
