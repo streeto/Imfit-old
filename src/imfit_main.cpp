@@ -510,6 +510,10 @@ int main(int argc, char *argv[])
     }
 #endif
   }
+  // Messages already printed inside the fitting code.
+  if (status < 0) {
+    exit(-1);
+  }
 
 
   // Optional bootstrap resampling

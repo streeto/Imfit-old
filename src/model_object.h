@@ -32,6 +32,8 @@ class ModelObject
     
     void SetMaxThreads( int maxThreadNumber );
     
+    bool Error( void ) { return error; }
+
     // common, not specialized
     // Adds a new FunctionObject pointer to the internal vector
     void AddFunction( FunctionObject *newFunctionObj_ptr );
@@ -203,6 +205,7 @@ class ModelObject
 	double  readNoise_adu_squared;
     int  debugLevel;
     bool printDebug;
+    bool error;
     int  maxRequestedThreads;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
     bool  residualVectorAllocated, outputModelVectorAllocated;

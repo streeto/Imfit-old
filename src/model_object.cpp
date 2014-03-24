@@ -120,6 +120,7 @@ ModelObject::ModelObject( )
   nParamsTot = 0;
   debugLevel = 0;
   printDebug = true;
+  error = false;
   
   // default image characteristics
   gain = 1.0;
@@ -724,6 +725,7 @@ bool ModelObject::ComputeDeviates( double yResults[], double params[] )
 #endif
 
   if (!CreateModelImage(params)) {
+	error = true;
     return false;
   }
   if (modelErrors)
@@ -853,7 +855,8 @@ double ModelObject::ChiSquared( double params[] )
   }
   
   if (!CreateModelImage(params)) {
-    return -1.0;
+    error = true;
+    return NAN;
   }
   if (modelErrors)
     UpdateWeightVector();
@@ -913,7 +916,8 @@ double ModelObject::CashStatistic( double params[] )
   double  cashStat = 0.0;
   
   if (!CreateModelImage(params)) {
-    return -1.0;
+	error = true;
+    return NAN;
   }
   
   if (doConvolution) {

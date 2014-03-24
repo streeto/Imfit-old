@@ -71,6 +71,7 @@ double ImfitSolver::EnergyFunction( double *trial, bool &bAtSolution )
   double  fitStatistic;
   
   fitStatistic = theModel->GetFitStatistic(trial);
+  SetError(theModel->Error());
 
   return(fitStatistic);
 }
@@ -138,7 +139,7 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   solver = new ImfitSolver(nParamsTot, POP_SIZE_PER_PARAMETER*nFreeParameters, theModel);
   solver->Setup(minParamValues, maxParamValues, stRandToBest1Exp, F, CR, ftol);
 
-  if (!solver->Solve(maxGenerations, verbose) && (solver->Energy() < 0.0)) {
+  if (!solver->Solve(maxGenerations, verbose) && solver->Error()) {
     printf("\n*** Error calculating Energy function, check your parameters!\n");
     printf("Exiting...\n\n");
     delete solver;

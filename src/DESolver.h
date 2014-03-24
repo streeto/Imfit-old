@@ -68,6 +68,10 @@ public:
 
 	int Generations(void) { return(generations); }
 
+	bool Error(void) { return error; }
+
+	void SetError(bool error);
+
 protected:
 	void SelectSamples( int candidate, int *r1, int *r2=0, int *r3=0, 
 												int *r4=0, int *r5=0 );
@@ -99,6 +103,9 @@ protected:
 	
 	// added by PE for debugging purposes
 	double  lastBestEnergy;
+
+	// added by Andre for error checking
+	bool error;
 
 private:
 	void Best1Exp(int candidate);

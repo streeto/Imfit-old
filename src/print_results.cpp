@@ -69,6 +69,9 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     if (fitStatus < 1)
       return;
     double  fitStatistic = model->GetFitStatistic(params);
+    if (model->Error()) {
+      printf("  *** Error calculating fit statistic. ***");
+    }
     bool usingCashStatistic = model->UsingCashStatistic();
     if (usingCashStatistic)
       printf("  CASH STATISTIC = %lf\n", fitStatistic);

@@ -95,6 +95,11 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
   status = mpfit(myfunc_mpfit, nDataVals, nParamsTot, paramVector, mpfitParameterConstraints,
 					&mpConfig, theModel, &mpfitResult);
 
+  if (theModel->Error()) {
+    printf("\n*** Error calculating model, check your parameters!\n");
+    printf("Exiting...\n\n");
+    return -1;
+  }
   resultOut = mpfitResult;
   if (verbose >= 0) {
     printf("\n");

@@ -50,6 +50,8 @@ DESolver::DESolver( int dim, int popSize ) :
   maxBounds = new double[nDim];
   // tolerance for convergence testing
   tolerance = DEFAULT_TOLERANCE;
+  // error checking
+  error = false;
   
   return;
 }
@@ -218,13 +220,12 @@ bool DESolver::Solve( int maxGenerations, int verbose )
       
       // Test our newly mutated/bred trial parameter vector
       trialEnergy = EnergyFunction(trialSolution, bAtSolution);
-      if (trialEnergy < 0.0) {
-        // FXIME: what to do when we get error in EnergyFunction? (flagged by negative
-    	// value of trialEnergy). This implies in errors when creating model image,
-    	// specifically non-finite parameters. This error will occur for all candidates
-    	// and trials. My best guess is to use the negative energy value as a flag,
-    	// and return leaving DESolver in an undefined state. This seems OK, as this
-    	// object is destroyed after the error is detected in DiffEvolnFit().
+      if (Error()) {
+        // Added by Andre.
+        // Warning: what to do when we get error in EnergyFunction?  This implies in errors
+        // when creating model image, specifically non-finite parameters. This error will
+        // occur for all candidates and trials. Return leaving DESolver in an undefined state.
+        // This seems OK, as this object is destroyed after the error is detected in DiffEvolnFit().
     	bestEnergy = trialEnergy;
         return false;
       }
@@ -287,6 +288,13 @@ void DESolver::StoreSolution( double *theSolution )
 {
   for (int i = 0; i < nDim; i++)
     theSolution[i] = bestSolution[i];
+}
+
+
+
+void DESolver::SetError( bool error )
+{
+  this->error = error;
 }
 
 
