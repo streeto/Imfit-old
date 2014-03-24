@@ -217,7 +217,7 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
 
 int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
-                  vector<int> &functionSetIndices, bool subsamplingFlag )
+                  vector<int> &functionSetIndices, bool subsamplingFlag, bool verbose )
 {
   int  nFunctions = functionNameList.size();
   string  currentName;
@@ -229,7 +229,9 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
 
   for (int i = 0; i < nFunctions; i++) {
     currentName = functionNameList[i];
-    // printf("Function: %s\n", currentName.c_str());
+    if (verbose) {
+      printf("Function: %s\n", currentName.c_str());
+    }
     if (factory_map.count(currentName) < 1) {
       printf("*** AddFunctions: unidentified function name (\"%s\")\n", currentName.c_str());
       return - 1;
