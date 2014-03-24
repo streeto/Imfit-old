@@ -204,7 +204,6 @@ class ModelObject
 	double  gain, readNoise, exposureTime, originalSky, effectiveGain;
 	double  readNoise_adu_squared;
     int  debugLevel;
-    bool printDebug;
     bool error;
     int  maxRequestedThreads;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;

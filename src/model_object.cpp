@@ -119,7 +119,6 @@ ModelObject::ModelObject( )
   nFunctionParams = 0;
   nParamsTot = 0;
   debugLevel = 0;
-  printDebug = true;
   error = false;
   
   // default image characteristics
@@ -137,15 +136,10 @@ ModelObject::ModelObject( )
 
 void ModelObject::SetDebugLevel( int debuggingLevel )
 {
-  if (debuggingLevel >= 0) {
+  if (debuggingLevel > 0) {
     printf("ModelObject::SetDebugLevel -- Enabled debug level %d", debuggingLevel);
-    debugLevel = debuggingLevel;
-    printDebug = true;
   }
-  else {
-    debugLevel = 0;
-    printDebug = false;
-  }
+  debugLevel = debuggingLevel;
 }
 
 
@@ -402,7 +396,7 @@ bool ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
     case MASK_ZERO_IS_GOOD:
       // This is our "standard" input mask: good pixels are zero, bad pixels
       // are positive integers
-      if (printDebug) {
+      if (debugLevel >= 0) {
         printf("ModelObject::AddMaskVector -- treating zero-valued pixels as good ...\n");
       }
       for (int z = 0; z < nDataVals; z++) {
@@ -416,7 +410,7 @@ bool ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
       break;
     case MASK_ZERO_IS_BAD:
       // Alternate form for input masks: good pixels are 1, bad pixels are 0
-      if (printDebug) {
+      if (debugLevel >= 0) {
         printf("ModelObject::AddMaskVector -- treating zero-valued pixels as bad ...\n");
       }
       for (int z = 0; z < nDataVals; z++) {
@@ -446,7 +440,7 @@ void ModelObject::ApplyMask( )
     for (int z = 0; z < nDataVals; z++) {
       weightVector[z] = maskVector[z] * weightVector[z];
     }
-    if (printDebug) {
+    if (debugLevel >= 0) {
       printf("ModelObject: mask vector applied to weight vector. ");
       printf("(%d valid pixels remain)\n", nValidDataVals);
     }
