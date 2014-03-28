@@ -76,7 +76,7 @@ static int  verboseOutput;
 static int  funcCount = 0;
 
 // Static variable to enable emergency exit.
-static nlopt_opt current_opt = NULL;
+static nlopt_opt optimizer = NULL;
 
 // Objective function: calculates the objective value (ignore gradient calculation)
 // Keep track of how many times this function has been called, and report current
@@ -91,9 +91,9 @@ double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_dat
   fitStatistic = theModel->GetFitStatistic(params);
   if (theModel->Error()) {
 	printf("\nError calculating fit statistic, check your parameters!\n\n");
-	if (current_opt != NULL) {
+	if (optimizer != NULL) {
       // FIXME: This does not seem to stop the optimization.
-	  nlopt_force_stop(current_opt);
+	  nlopt_force_stop(optimizer);
 	}
   }
 
@@ -160,7 +160,6 @@ void InterpretResult( nlopt_result  resultValue )
 int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
                   ModelObject *theModel, double ftol, int verbose )
 {
-  nlopt_opt  optimizer;
   nlopt_result  result;
   int  maxEvaluations;
   double  finalStatisticVal;
@@ -194,7 +193,6 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   
   // Create an nlopt object, specifying Nelder-Mead Simplex algorithm
   optimizer = nlopt_create(NLOPT_LN_NELDERMEAD, nParamsTot); /* algorithm and dimensionality */
-  current_opt = optimizer;
   
   // Specify stopping conditions (desired tolerances, max # function calls)
   // specify relative tolerance (same as ftol in mpfit.cpp)
@@ -225,8 +223,8 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
 
 
   // Dispose of nl_opt object and free arrays:
-  current_opt = NULL;
   nlopt_destroy(optimizer);
+  optimizer = NULL;
   free(minParamValues);
   free(maxParamValues);
   return 1;
