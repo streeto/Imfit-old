@@ -227,7 +227,7 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   optimizer = NULL;
   free(minParamValues);
   free(maxParamValues);
-  return 1;
+  return result;
 }
 
 

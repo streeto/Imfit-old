@@ -66,7 +66,7 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     // PrintResult was called with result from Nelder-Mead simplex or 
     // Differential Evolution fit, not mpfit
     // Only print results of fit if fitStatus >= 1
-    if (fitStatus < 1)
+    if (fitStatus < 0)
       return;
     double  fitStatistic = model->GetFitStatistic(params);
     if (model->Error()) {

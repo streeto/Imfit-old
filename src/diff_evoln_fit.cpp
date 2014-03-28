@@ -139,21 +139,23 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   solver = new ImfitSolver(nParamsTot, POP_SIZE_PER_PARAMETER*nFreeParameters, theModel);
   solver->Setup(minParamValues, maxParamValues, stRandToBest1Exp, F, CR, ftol);
 
-  if (!solver->Solve(maxGenerations, verbose) && solver->Error()) {
+  int retval;
+  if (solver->Solve(maxGenerations, verbose)) {
+    solver->StoreSolution(paramVector);
+    retval = 1;
+  } else if (solver->Error()) {
     printf("\n*** Error calculating Energy function, check your parameters!\n");
     printf("Exiting...\n\n");
-    delete solver;
-    free(minParamValues);
-    free(maxParamValues);
-    return -1;
+    retval = -2;
+  } else {
+    // No error, but did not find the solution.
+    retval = 5;
   }
-
-  solver->StoreSolution(paramVector);
 
   delete solver;
   free(minParamValues);
   free(maxParamValues);
-  return 1;
+  return retval;
 }
 
 
