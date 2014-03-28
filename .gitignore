@@ -24,3 +24,6 @@ imfit
 makeimage
 libimfit.la
 imfit.pc
+.settings
+.autotools
+.cproject
