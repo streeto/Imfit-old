@@ -55,6 +55,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <math.h>
 #include <iostream>
@@ -84,7 +85,7 @@ static string  UNDEFINED = "<undefined>";
 
 // current best size for OpenMP processing (works well with Intel Core 2 Duo and
 // Core i7 in MacBook Pro, under Mac OS X 10.6 and 10.7)
-#define OPENMP_CHUNK_SIZE  10
+#define OPENMP_CHUNK_SIZE  8
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -532,13 +533,14 @@ bool ModelObject::CreateModelImage( double params[] )
 // Note that we cannot specify modelVector as shared [or private] bcs it is part
 // of a class (not an independent variable); happily, by default all references in
 // an omp-parallel section are shared unless specified otherwise
-#pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
+  __attribute__((aligned(64))) double scratch[nModelVals];
+  #pragma omp parallel shared(scratch) private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
   {
-  #pragma omp for schedule (static, chunk)
+  #pragma omp for schedule (static, chunk) collapse(2)
   for (i = 0; i < nModelRows; i++) {   // step by row number = y
-    y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1 
-                                                 // (note that nPSFRows = 0 if not doing PSF convolution)
     for (j = 0; j < nModelColumns; j++) {   // step by column number = x
+      y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1
+                                                   // (note that nPSFRows = 0 if not doing PSF convolution)
       x = (double)(j - nPSFColumns + 1);                 // Iraf counting: first column = 1
                                                          // (note that nPSFColumns = 0 if not doing PSF convolution)
       newValSum = 0.0;
@@ -550,11 +552,12 @@ bool ModelObject::CreateModelImage( double params[] )
         storedError = (tempSum - newValSum) - adjVal;
         newValSum = tempSum;
       }
-      modelVector[i*nModelColumns + j] = newValSum;
+      scratch[i*nModelColumns + j] = newValSum;
     }
   }
   
   } // end omp parallel section
+  memcpy(modelVector, scratch, sizeof(scratch));
   
   
   // Do PSF convolution, if requested
