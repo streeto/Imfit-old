@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([imfit], [1.0b2], [streetomon@gmail.com])
+AC_INIT([imfit], [1.0.1], [streetomon@gmail.com])
 AC_CANONICAL_SYSTEM
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.10 -Wall])
