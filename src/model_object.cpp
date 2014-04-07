@@ -249,7 +249,8 @@ bool ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
     nModelVals = nDataVals;
   }
   // Allocate modelimage vector
-  modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
+  posix_memalign((void**) &modelVector, 64, (size_t)(nModelVals * sizeof(double)));
+  memset(modelVector, nModelVals, sizeof(double));
   modelVectorAllocated = true;
   return true;
 }
@@ -533,31 +534,29 @@ bool ModelObject::CreateModelImage( double params[] )
 // Note that we cannot specify modelVector as shared [or private] bcs it is part
 // of a class (not an independent variable); happily, by default all references in
 // an omp-parallel section are shared unless specified otherwise
-  __attribute__((aligned(64))) double scratch[nModelVals];
-  #pragma omp parallel shared(scratch) private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
+  #pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
   {
-  #pragma omp for schedule (static, chunk) collapse(2)
-  for (i = 0; i < nModelRows; i++) {   // step by row number = y
-    for (j = 0; j < nModelColumns; j++) {   // step by column number = x
-      y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1
-                                                   // (note that nPSFRows = 0 if not doing PSF convolution)
-      x = (double)(j - nPSFColumns + 1);                 // Iraf counting: first column = 1
-                                                         // (note that nPSFColumns = 0 if not doing PSF convolution)
-      newValSum = 0.0;
-      storedError = 0.0;
-      for (n = 0; n < nFunctions; n++) {
-        // Use Kahan summation algorithm
-        adjVal = functionObjects[n]->GetValue(x, y) - storedError;
-        tempSum = newValSum + adjVal;
-        storedError = (tempSum - newValSum) - adjVal;
-        newValSum = tempSum;
-      }
-      scratch[i*nModelColumns + j] = newValSum;
+  #pragma omp for schedule (static, chunk)
+  for (int k = 0; k < nModelVals; k++) {
+    j = k % nModelColumns;
+    i = k / nModelColumns;
+    y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1
+                                                 // (note that nPSFRows = 0 if not doing PSF convolution)
+    x = (double)(j - nPSFColumns + 1);           // Iraf counting: first column = 1
+                                                 // (note that nPSFColumns = 0 if not doing PSF convolution)
+    newValSum = 0.0;
+    storedError = 0.0;
+    for (n = 0; n < nFunctions; n++) {
+      // Use Kahan summation algorithm
+      adjVal = functionObjects[n]->GetValue(x, y) - storedError;
+      tempSum = newValSum + adjVal;
+      storedError = (tempSum - newValSum) - adjVal;
+      newValSum = tempSum;
     }
+    modelVector[k] = newValSum;
   }
   
   } // end omp parallel section
-  memcpy(modelVector, scratch, sizeof(scratch));
   
   
   // Do PSF convolution, if requested
