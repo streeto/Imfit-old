@@ -250,7 +250,7 @@ bool ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
   }
   // Allocate modelimage vector
   posix_memalign((void**) &modelVector, 64, (size_t)(nModelVals * sizeof(double)));
-  memset(modelVector, nModelVals, sizeof(double));
+  memset(modelVector, 0, nModelVals * sizeof(double));
   modelVectorAllocated = true;
   return true;
 }
