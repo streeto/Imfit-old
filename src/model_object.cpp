@@ -576,6 +576,80 @@ bool ModelObject::CreateModelImage( double params[] )
 }
 
 
+bool ModelObject::CreateModelImageOrig( double params[])
+{
+  double  x0, y0, x, y, newValSum;
+  int  i, j, n;
+  int  offset = 0;
+
+  // Check parameter values for sanity
+  if (! CheckParamVector(nParamsTot, params)) {
+    printf("** ModelObject::CreateModelImage -- non-finite values detected in parameter vector!\n");
+#ifdef DEBUG
+    printf("   Parameter values: %s = %g, ", parameterLabels[0].c_str(), params[0]);
+    for (int z = 1; z < nParamsTot; z++)
+      printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
+    printf("\n");
+#endif
+    return false;
+  }
+
+  // Separate out the individual-component parameters and tell the
+  // associated function objects to do setup work.
+  // The first component's parameters start at params[0]; the second's
+  // start at params[paramSizes[0]], the third at
+  // params[paramSizes[0] + paramSizes[1]], and so forth...
+  for (n = 0; n < nFunctions; n++) {
+    if (setStartFlag[n] == true) {
+      // start of new function set: extract x0,y0 and then skip over them
+      x0 = params[offset];
+      y0 = params[offset + 1];
+      offset += 2;
+    }
+    functionObjects[n]->Setup(params, offset, x0, y0);
+    offset += paramSizes[n];
+  }
+
+  double  tempSum, adjVal, storedError;
+
+  // OK, populate modelVector with the model image
+  // OpenMP Parallel Section
+// Note that we cannot specify modelVector as shared [or private] bcs it is part
+// of a class (not an independent variable); happily, by default all references in
+// an omp-parallel section are shared unless specified otherwise
+#pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
+  {
+  #pragma omp for schedule (static, chunk)
+  for (i = 0; i < nModelRows; i++) {   // step by row number = y
+    y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1
+                                                 // (note that nPSFRows = 0 if not doing PSF convolution)
+    for (j = 0; j < nModelColumns; j++) {   // step by column number = x
+      x = (double)(j - nPSFColumns + 1);                 // Iraf counting: first column = 1
+                                                         // (note that nPSFColumns = 0 if not doing PSF convolution)
+      newValSum = 0.0;
+      storedError = 0.0;
+      for (n = 0; n < nFunctions; n++) {
+        // Use Kahan summation algorithm
+        adjVal = functionObjects[n]->GetValue(x, y) - storedError;
+        tempSum = newValSum + adjVal;
+        storedError = (tempSum - newValSum) - adjVal;
+        newValSum = tempSum;
+      }
+      modelVector[i*nModelColumns + j] = newValSum;
+    }
+  }
+
+  } // end omp parallel section
+
+
+  // Do PSF convolution, if requested
+  if (doConvolution)
+    psfConvolver->ConvolveImage(modelVector);
+
+  modelImageComputed = true;
+  return true;
+}
+
 /* ---------------- PUBLIC METHOD: SingleFunctionImage ----------------- */
 // Generate a model image using *one* of the FunctionObjects (the one indicated by
 // functionIndex) and the input parameter vector; returns pointer to modelVector.

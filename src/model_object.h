@@ -94,6 +94,9 @@ class ModelObject
 
     // common, but Specialized by ModelObject1D
     virtual bool CreateModelImage( double params[] );
+
+    // keep this around for benchmarking
+    virtual bool CreateModelImageOrig( double params[] );
     
     // 2D only
     void UpdateWeightVector(  );
