@@ -128,6 +128,7 @@ ModelObject::ModelObject( )
   nCombined = 1;
   
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
+  chunk = OPENMP_CHUNK_SIZE;
   
   nPSFRows = nPSFColumns = 0;
 }
@@ -153,6 +154,15 @@ void ModelObject::SetMaxThreads( int maxThreadNumber )
 #ifdef USE_OPENMP
   omp_set_num_threads(maxRequestedThreads);
 #endif
+}
+
+
+/* ---------------- PUBLIC METHOD: SetChunkSize ----------------------- */
+
+void ModelObject::SetChunkSize( int chunkSize )
+{
+  assert( (chunkSize >= 1) );
+  chunk = chunkSize;
 }
 
 
@@ -529,7 +539,6 @@ bool ModelObject::CreateModelImage( double params[] )
   
   // OK, populate modelVector with the model image
   // OpenMP Parallel Section
-  int  chunk = OPENMP_CHUNK_SIZE;
 // Note that we cannot specify modelVector as shared [or private] bcs it is part
 // of a class (not an independent variable); happily, by default all references in
 // an omp-parallel section are shared unless specified otherwise

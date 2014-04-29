@@ -31,7 +31,9 @@ class ModelObject
     void SetDebugLevel( int debuggingLevel );
     
     void SetMaxThreads( int maxThreadNumber );
-    
+
+    void SetChunkSize( int chunkSize );
+
     bool Error( void ) { return error; }
 
     // common, not specialized
@@ -212,6 +214,7 @@ class ModelObject
     bool  modelImageComputed;
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
     bool  doConvolution;
+    int  chunk;
     bool  modelErrors;
     bool  useCashStatistic;
     bool  deviatesVectorAllocated;   // for chi-squared calculations
