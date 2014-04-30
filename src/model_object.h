@@ -105,10 +105,10 @@ class ModelObject
     virtual bool ComputeDeviates( double yResults[], double params[] );
 
      // common, not specialized
-    virtual bool UseModelErrors( );
+    virtual void UseModelErrors( );
 
      // common, not specialized
-    virtual bool UseCashStatistic( );
+    virtual void UseCashStatistic( );
  
      // common, not specialized
     virtual bool UsingCashStatistic( );

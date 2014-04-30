@@ -189,8 +189,10 @@ void ModelObject::DefineFunctionSets( vector<int>& functionStartIndices )
   
   nFunctionSets = functionStartIndices.size();
     // define array of [false, false, false, ...]
-  setStartFlag = (bool *)calloc(nFunctions, sizeof(bool));
-  setStartFlag_allocated = true;
+  if (! setStartFlag_allocated) {
+    setStartFlag = (bool *)calloc(nFunctions, sizeof(bool));
+    setStartFlag_allocated = true;
+  }
   for (i = 0; i < nFunctionSets; i++) {
     nn = functionStartIndices[i];
     // function number n is start of new function set; 
@@ -355,8 +357,10 @@ bool ModelObject::GenerateErrorVector( )
   double  noise_squared, totalFlux;
 
   // Allocate storage for weight image:
-  weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-  weightVectorAllocated = true;
+  if (! weightVectorAllocated) {
+    weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    weightVectorAllocated = true;
+  }
   
 //  readNoise_adu_squared = readNoise*readNoise/(effectiveGain*effectiveGain);
   // Compute noise estimate for each pixel (see above for derivation)
@@ -853,46 +857,40 @@ bool ModelObject::ComputeDeviates( double yResults[], double params[] )
 
 /* ---------------- PUBLIC METHOD: UseModelErrors --------==----------- */
 
-bool ModelObject::UseModelErrors( )
+void ModelObject::UseModelErrors( )
 {
   modelErrors = true;
   // Allocate storage for weight image (do this here because we assume that
   // AddErrorVector() or GenerateErrorVector() will NOT be called if we're using 
   // Cash statistic), and set all values = 1
-  if (weightVectorAllocated) {
-    printf("ERROR: ModelImage::UseModelErrors -- weight vector already allocated!\n");
-    return false;
+  if (! weightVectorAllocated) {
+    weightVectorAllocated = true;
+    weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   }
-  weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   for (int z = 0; z < nDataVals; z++) {
     weightVector[z] = 1.0;
   }
-  weightVectorAllocated = true;
   weightValsSet = true;
-  return true;
 }
 
 
 /* ---------------- PUBLIC METHOD: UseCashStatistic ------------------- */
 
-bool ModelObject::UseCashStatistic( )
+void ModelObject::UseCashStatistic( )
 {
   useCashStatistic = true;
 
   // Allocate storage for weight image (do this here because we assume that
   // AddErrorVector() or GenerateErrorVector() will NOT be called if we're using 
   // Cash statistic), and set all values = 1
-  if (weightVectorAllocated) {
-    printf("ERROR: ModelImage::UseCashStatistic -- weight vector already allocated!\n");
-    return false;
+  if (! weightVectorAllocated) {
+    weightVectorAllocated = true;
+    weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   }
-  weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   for (int z = 0; z < nDataVals; z++) {
     weightVector[z] = 1.0;
   }
-  weightVectorAllocated = true;
   weightValsSet = true;
-  return true;
 }
 
 
@@ -1353,8 +1351,10 @@ double * ModelObject::GetResidualImageVector( )
     return NULL;
   }
   
-  residualVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-  residualVectorAllocated = true;
+  if (! residualVectorAllocated) {
+    residualVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    residualVectorAllocated = true;
+  }
   
   if (doConvolution) {
     // Step through model image so that we correctly match its pixels with corresponding

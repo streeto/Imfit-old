@@ -373,10 +373,7 @@ int main(int argc, char *argv[])
       fprintf(stderr, "*** ERROR -- Cannot use Cash statistic with L-M solver!\n\n");
       return -1;
     }
-    if (!theModel->UseCashStatistic()) {
-  	  printf("Exiting ...\n\n");
-  	  exit(-1);
-    }
+    theModel->UseCashStatistic();
     // do other stuff
   } else {
     // normal chi^2 statistics, so we either add error/noise image, or calculate it
@@ -390,10 +387,7 @@ int main(int argc, char *argv[])
     else {
       if (options.useModelForErrors) {
         printf("* No noise image supplied ... will generate noise image from model image.\n");
-        if (!theModel->UseModelErrors()) {
-      	  printf("Exiting ...\n\n");
-      	  exit(-1);
-        }
+        theModel->UseModelErrors();
       }
       else {
         printf("* No noise image supplied ... will generate noise image from input image.\n");
