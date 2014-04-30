@@ -1305,10 +1305,12 @@ double * ModelObject::GetModelImageVector( )
     return NULL;
   }
   
-  outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-  outputModelVectorAllocated = true;
-  
   if (doConvolution) {
+    if (! outputModelVectorAllocated) {
+      outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+      outputModelVectorAllocated = true;
+    }
+
     // Step through model image so that we correctly match its pixels with corresponding
     // pixels output image
     for (z = 0; z < nDataVals; z++) {
