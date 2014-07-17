@@ -56,7 +56,8 @@ int myfunc_mpfit( int nDataVals, int nParams, double *params, double *deviates,
            double **derivatives, ModelObject *theModel )
 {
 
-  return theModel->ComputeDeviates(deviates, params) ? 0 : -1;
+  theModel->ComputeDeviates(deviates, params);
+  return 0;
 }
 
 
@@ -95,11 +96,6 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
   status = mpfit(myfunc_mpfit, nDataVals, nParamsTot, paramVector, mpfitParameterConstraints,
 					&mpConfig, theModel, &mpfitResult);
 
-  if (theModel->Error()) {
-    printf("\n*** Error calculating model, check your parameters!\n");
-    printf("Exiting...\n\n");
-    return -1;
-  }
   resultOut = mpfitResult;
   if (verbose >= 0) {
     printf("\n");
@@ -109,7 +105,6 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
 
   return status;
 }
-
 
 
 

@@ -32,10 +32,8 @@ class ModelObject
     
     void SetMaxThreads( int maxThreadNumber );
 
-    void SetChunkSize( int chunkSize );
-
-    bool Error( void ) { return error; }
-
+    void SetOMPChunkSize( int chunkSize );
+    
     // common, not specialized
     // Adds a new FunctionObject pointer to the internal vector
     void AddFunction( FunctionObject *newFunctionObj_ptr );
@@ -56,30 +54,30 @@ class ModelObject
 //     void SetSkyBackground( double originalSkyValue );
 
 	// 2D only
-    bool AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows );
+    void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows );
 
 	// 2D only
     void AddImageCharacteristics( double imageGain, double readoutNoise, double expTime, 
     							int nCombinedImages, double originalSkyBackground );
     
 	// 2D only
-    bool SetupModelImage( int nImageColumns, int nImageRows );
+    void SetupModelImage( int nImageColumns, int nImageRows );
     
 	// 2D only
-    virtual bool AddErrorVector( int nDataValues, int nImageColumns, int nImageRows,
+    virtual void AddErrorVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
     // 1D only
     virtual void AddErrorVector1D( int nDataValues, double *pixelVector, int inputType ) { ; };
 
     // 1D only
-    virtual void AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { ; };
+    virtual int AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { return 0; };
     
 	// 2D only
-    virtual bool GenerateErrorVector( );
+    virtual void GenerateErrorVector( );
 
 	// 2D only
-    virtual bool AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
+    virtual int AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
 	// 2D only
@@ -93,18 +91,15 @@ class ModelObject
     virtual void ApplyMask( );
 
     // common, but Specialized by ModelObject1D
-    virtual bool CreateModelImage( double params[] );
-
-    // keep this around for benchmarking
-    virtual bool CreateModelImageOrig( double params[] );
+    virtual void CreateModelImage( double params[] );
     
     // 2D only
     void UpdateWeightVector(  );
 
     // Specialized by ModelObject1D
-    virtual bool ComputeDeviates( double yResults[], double params[] );
+    virtual void ComputeDeviates( double yResults[], double params[] );
 
-     // common, not specialized
+     // common, not specialized (currently not specialized by ModelObject1d)
     virtual void UseModelErrors( );
 
      // common, not specialized
@@ -132,23 +127,31 @@ class ModelObject
     virtual void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
 																		double errs[] );
 
+
     // 2D only; NOT USED ANYWHERE!
     void PrintImage( double *pixelVector, int nColumns, int nRows );
 
-		// 2D only
-    void PrintInputImage( );
+    // 1D only
+    virtual void PrintVector( double *theVector, int nVals ) { ; };
 
-		// 2D only
-    void PrintModelImage( );
+	// 1D or 2D
+    virtual void PrintInputImage( );
 
-    // 2D only; NOT USED ANYWHERE!
-    void PrintWeights( );
+	// 1D or 2D
+    virtual void PrintModelImage( );
+
+	// 1D or 2D
+    virtual void PrintWeights( );
+
+	// 1D or 2D
+    virtual void PrintMask( );
+
 
     // common, but Specialized by ModelObject1D
     virtual void PopulateParameterNames( );
 
-    // common, might be specialized...
-    virtual bool FinalSetup( );
+    // common, but Specialized by ModelObject1D
+    virtual int FinalSetupForFitting( );
 
     // common, not specialized
     string& GetParameterName( int i );
@@ -208,17 +211,16 @@ class ModelObject
 	double  zeroPoint;
 	double  gain, readNoise, exposureTime, originalSky, effectiveGain;
 	double  readNoise_adu_squared;
-    int  debugLevel;
-    bool error;
-    int  maxRequestedThreads;
-    bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
+    int  debugLevel, verboseLevel;
+    int  maxRequestedThreads, ompChunkSize;
+    bool  dataValsSet, parameterBoundsSet;
+    bool  modelVectorAllocated, weightVectorAllocated, maskVectorAllocated;
     bool  residualVectorAllocated, outputModelVectorAllocated;
     bool  setStartFlag_allocated;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
     bool  doConvolution;
-    int  chunk;
-    bool  modelErrors;
+    bool  modelErrors, dataErrors, externalErrorVectorSupplied;
     bool  useCashStatistic;
     bool  deviatesVectorAllocated;   // for chi-squared calculations
     bool  zeroPointSet;

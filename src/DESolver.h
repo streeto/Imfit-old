@@ -9,7 +9,7 @@
 // Last Modified: 6/8/98
 // Revision: 1.0
 
-// Minor modifications by Peter Erwin, 5 April 2010
+// Minor modifications by Peter Erwin, 5 April 2010; 19 June 2014
 
 #if !defined(_DESOLVER_H)
 #define _DESOLVER_H
@@ -50,7 +50,7 @@ public:
   
 	// Solve() returns true if EnergyFunction() returns true.
 	// Otherwise it runs maxGenerations generations and returns false.
-	virtual bool Solve( int maxGenerations, int verbose=1 );
+	virtual int Solve( int maxGenerations, int verbose=1 );
 
 	// EnergyFunction must be overridden for problem to solve
 	// testSolution[] is nDim array for a candidate solution
@@ -67,10 +67,6 @@ public:
 	void StoreSolution( double *theSolution );
 
 	int Generations(void) { return(generations); }
-
-	bool Error(void) { return error; }
-
-	void SetError(bool error);
 
 protected:
 	void SelectSamples( int candidate, int *r1, int *r2=0, int *r3=0, 
@@ -103,9 +99,6 @@ protected:
 	
 	// added by PE for debugging purposes
 	double  lastBestEnergy;
-
-	// added by Andre for error checking
-	bool error;
 
 private:
 	void Best1Exp(int candidate);

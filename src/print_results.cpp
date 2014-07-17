@@ -66,17 +66,14 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     // PrintResult was called with result from Nelder-Mead simplex or 
     // Differential Evolution fit, not mpfit
     // Only print results of fit if fitStatus >= 1
-    if (fitStatus < 0)
+    if (fitStatus < 1)
       return;
     double  fitStatistic = model->GetFitStatistic(params);
-    if (model->Error()) {
-      printf("  *** Error calculating fit statistic. ***");
-    }
     bool usingCashStatistic = model->UsingCashStatistic();
     if (usingCashStatistic)
-      printf("  CASH STATISTIC = %lf\n", fitStatistic);
+      printf("  CASH STATISTIC = %f\n", fitStatistic);
     else {
-      printf("  CHI-SQUARE = %lf    (%d DOF)\n", fitStatistic, nDegreesFreedom);
+      printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
       printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
     }
     aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);

@@ -27,3 +27,5 @@ imfit.pc
 .settings
 .autotools
 .cproject
+.project
+.pydevproject
